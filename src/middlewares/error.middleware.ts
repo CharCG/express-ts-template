@@ -1,0 +1,44 @@
+import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../utils/error.util';
+import { ZodError } from 'zod';
+import { AppResponse } from '../utils/response.util';
+
+export const errorMiddleware = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (err instanceof AppError) {
+    AppResponse.error(
+      err.statusCode,
+      err.message,
+      undefined,
+      undefined,
+      err.stack,
+    ).send(res);
+    return;
+  }
+
+  if (err instanceof ZodError) {
+    AppResponse.error(
+      400,
+      'Bad Request',
+      undefined,
+      err.issues.map((i) => ({
+        field: i.path.join('.'),
+        message: i.message,
+      })),
+      err.stack,
+    ).send(res);
+    return;
+  }
+
+  AppResponse.error(
+    500,
+    'Internal Server Error',
+    undefined,
+    undefined,
+    err.stack,
+  ).send(res);
+};
