@@ -3,20 +3,9 @@ import { AppError } from '../utils/error.util';
 import { ZodError } from 'zod';
 import { AppResponse } from '../utils/response.util';
 
-export const errorMiddleware = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const errorMiddleware = (err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof AppError) {
-    AppResponse.error(
-      err.statusCode,
-      err.message,
-      undefined,
-      undefined,
-      err.stack,
-    ).send(res);
+    AppResponse.error(err.statusCode, err.message, undefined, undefined, err.stack).send(res);
     return;
   }
 
@@ -34,11 +23,5 @@ export const errorMiddleware = (
     return;
   }
 
-  AppResponse.error(
-    500,
-    'Internal Server Error',
-    undefined,
-    undefined,
-    err.stack,
-  ).send(res);
+  AppResponse.error(500, 'Internal Server Error', undefined, undefined, err.stack).send(res);
 };
