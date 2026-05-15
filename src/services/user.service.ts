@@ -12,9 +12,9 @@ export const findAll = async () => {
   return users;
 };
 
-export const findById = async (data: GetUserDto) => {
+export const findById = async (dto: GetUserDto) => {
   const user = await prisma.user.findUnique({
-    where: { id: data.id },
+    where: { id: dto.id },
     select: {
       id: true,
       name: true,
@@ -24,9 +24,9 @@ export const findById = async (data: GetUserDto) => {
   return user;
 };
 
-export const createUser = async (data: CreateUserDto) => {
+export const createUser = async (dto: CreateUserDto) => {
   const user = await prisma.user.create({
-    data,
+    data: dto,
     select: {
       id: true,
       name: true,
