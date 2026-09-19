@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { NotFoundError } from '../utils/error.util';
+import { RequestHandler } from 'express';
+import { NotFoundError } from '../shared/app-error.js';
 
-export const notFoundMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  throw new NotFoundError();
+export const notFoundMiddleware: RequestHandler = (req) => {
+  throw new NotFoundError(`Route ${req.originalUrl} not found`);
 };

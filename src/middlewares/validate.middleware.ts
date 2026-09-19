@@ -1,14 +1,19 @@
-import { Request, Response, NextFunction } from 'express';
-import { ZodObject } from 'zod';
+import { RequestHandler } from 'express';
+import { ZodType } from 'zod';
+import { BadRequestError } from '../shared/app-error.js';
 
-type Target = 'body' | 'query' | 'params';
+export const validateMiddleware = (schema: ZodType): RequestHandler => {
+  return (req, res, next) => {
+    const result = schema.safeParse({
+      body: req.body,
+      query: req.query,
+      params: req.params,
+    });
 
-export const validateMiddleware =
-  (schema: ZodObject, target: Target) => async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await schema.parseAsync(req[target]);
-      next();
-    } catch (err) {
-      next(err);
+    if (!result.success) {
+      throw new BadRequestError(result.error.issues[0]?.message ?? 'Invalid request');
     }
+
+    next();
   };
+};
