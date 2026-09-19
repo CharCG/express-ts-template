@@ -1,16 +1,10 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
+import { z } from 'zod';
 
-dotenv.config();
+const schema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  DATABASE_URL: z.string().url(),
+});
 
-export const env = {
-  NODE_ENV: process.env.NODE_ENV || 'development',
-
-  IS_PRODUCTION: () => env.NODE_ENV === 'production',
-  IS_DEVELOPMENT: () => env.NODE_ENV === 'development',
-  IS_TESTING: () => env.NODE_ENV === 'testing',
-
-  HOST: process.env.HOST || 'localhost',
-  PORT: parseInt(process.env.PORT || '3000', 10),
-
-  DATABASE_URL: process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/db',
-} as const;
+export const env = schema.parse(process.env);

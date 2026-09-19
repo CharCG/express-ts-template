@@ -1,27 +1,22 @@
-import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../utils/error.util';
-import { ZodError } from 'zod';
-import { AppResponse } from '../utils/response.util';
+import { ErrorRequestHandler } from 'express';
+import { AppError } from '../shared/app-error.js';
 
-export const errorMiddleware = (err: Error, req: Request, res: Response, next: NextFunction) => {
+export const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof AppError) {
-    AppResponse.error(err.statusCode, err.message, undefined, undefined, err.stack).send(res);
+    res.status(err.statusCode).json({
+      success: false,
+      statusCode: err.statusCode,
+      message: err.message,
+      data: null,
+    });
+
     return;
   }
 
-  if (err instanceof ZodError) {
-    AppResponse.error(
-      400,
-      'Bad Request',
-      undefined,
-      err.issues.map((i) => ({
-        field: i.path.join('.'),
-        message: i.message,
-      })),
-      err.stack,
-    ).send(res);
-    return;
-  }
-
-  AppResponse.error(500, 'Internal Server Error', undefined, undefined, err.stack).send(res);
+  res.status(500).json({
+    success: false,
+    statusCode: 500,
+    message: 'Internal Server Error',
+    data: null,
+  });
 };
